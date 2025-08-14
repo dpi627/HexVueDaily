@@ -26,6 +26,14 @@
 <script setup>
 import { ref, computed } from "vue";
 
+const totalPrice = computed(()=>{
+  let price = 0;
+  fruitData.value.forEach(fruit => {
+    price += fruit.count * fruit.price
+  });
+  return price;
+})
+
 const fruitData = ref([
   {
     title: 'apple',
