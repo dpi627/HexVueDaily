@@ -4,7 +4,7 @@
     <div class="total-price mt-3">
       <h4>總價：{{ totalPrice }} 元</h4>
     </div>
-    
+
     <div class="row">
       <template v-for="(fruit, index) in fruitData" :key="index">
         <div class="col-md-6 mb-3">
@@ -26,13 +26,11 @@
 <script setup>
 import { ref, computed } from "vue";
 
-const totalPrice = computed(()=>{
-  let price = 0;
-  fruitData.value.forEach(fruit => {
-    price += fruit.count * fruit.price
-  });
-  return price;
-})
+const totalPrice = computed(() =>
+  fruitData.value.reduce((price, fruit) =>
+    price + fruit.count * fruit.price, 0
+  )
+);
 
 const fruitData = ref([
   {
