@@ -26,11 +26,17 @@
 <script setup>
 import { ref, computed } from "vue";
 
-const totalPrice = computed(() =>
-  fruitData.value.reduce((price, fruit) =>
+const totalPrice = computed(() => {
+  let price = fruitData.value.reduce((price, fruit) =>
     price + fruit.count * fruit.price, 0
   )
-);
+  return formatPrice(price);
+});
+
+// 格式化金額為千分位
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('zh-TW', { style: 'decimal' }).format(price);
+};
 
 const fruitData = ref([
   {
