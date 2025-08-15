@@ -3,6 +3,6 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 // import './style.css'
-import App from './Daily10.vue'
+import App from './Daily11.vue'
 
 createApp(App).mount('#app')
