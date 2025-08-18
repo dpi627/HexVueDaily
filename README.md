@@ -1,4 +1,5 @@
-#vue #hex 
+![](https://img.shields.io/badge/Vite-ddd?logo=vite)
+![](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs)
 
 # Day 1
 
