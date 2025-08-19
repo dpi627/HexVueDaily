@@ -1170,3 +1170,103 @@ import Footer from './Footer.vue'
 > [!note] 
 > View 也可視為一個 Component
 
+---
+
+# Day 13
+
+https://hackmd.io/vBgGQagdTYKn5_REkPjDTA
+
+## props
+
+- 向元件單向傳遞資料
+- 或者說，由外層向內，由父元件向子元件傳遞資料
+- 子元件透過 `defineProps` 定義屬性，一個子元件只能有一個 `definProps`
+- 父元件 `import` 子元件後設定屬性，以下是最簡單寫法，只宣告名稱，變數可為任意型別
+
+```html
+<!-- 子元件 -->
+<template>
+  <h1>{{ data }}</h1>
+</template>
+
+<script setup>
+// import { defineProps } from 'vue'; // 可省略但不建議
+
+defineProps(['data'])
+</script>
+```
+```html
+<!-- 父元件 -->
+<template>
+  <Child :data="data" />
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import Child from './components/Child.vue';
+
+const data = ref('Hello')
+</script>
+```
+
+- 可定義多個傳入變數，傳入陣列也沒問題
+
+```js
+defineProps(['data', 'value'])
+// 上述等同 defineProps({ content: null, value: null });
+```
+```html
+<Child :data="data" :value="2" />
+```
+
+- 可詳細定義屬性的類型，甚至包含驗證
+
+```js
+// 階段1：基本類型檢查
+defineProps({
+  content: Object,
+  value: [String, Number]
+});
+
+// 階段2：加入預設值
+defineProps({
+  content: {
+    type: Object,
+    default: () => ({})
+  },
+  value: {
+    type: [String, Number],
+    default: ''
+  }
+});
+
+// 階段3：完整驗證
+defineProps({
+  content: {
+    type: Object,
+    required: true,
+    validator: (value) => {
+      return value && typeof value.title === 'string';
+    }
+  },
+  value: {
+    type: [String, Number],
+    default: ''
+  }
+});
+```
+
+## naming rule
+
+- JavaScript 通常使用 camelCase，子元件內的屬性命名也遵循此規則
+- 父元件設定子元件屬性時，屬於 HTML attribute，建議使用 kebab-case
+
+```js
+defineProps(['innerData']); //camelCase
+```
+```html
+<EasyCard :inner-data="data" /> <!-- HTML 屬性一律使用 kebab-case -->
+<EasyCard :innerData="data" /> <!-- Vue 會轉換，但不建議 -->
+```
+
+---
