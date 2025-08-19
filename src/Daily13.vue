@@ -1,5 +1,5 @@
 <template>
-  <Child :data="data" />
+  <Child :data="data" :value="2" />
 </template>
 
 <script setup>
