@@ -4,10 +4,11 @@
   <div v-for="user in users" :key="user.id">
     {{ user.id }} - {{ user.name }}
   </div>
+  <h3>{{ innerData }}</h3>
 </template>
 
 <script setup>
 import { defineProps } from 'vue';
 
-defineProps(['data', 'value', 'users'])
+defineProps(['data', 'value', 'users', 'innerData'])
 </script>

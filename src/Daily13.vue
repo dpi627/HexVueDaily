@@ -1,5 +1,5 @@
 <template>
-  <Child :data="data" :value="2" :users="list" />
+  <Child :data="data" :value="2" :users="list" :inner-data="isEnabled" />
 </template>
 
 <script setup>
@@ -12,4 +12,6 @@ const list = ref([
   { "id": 1, "name": "Andy" },
   { "id": 2, "name": "Bill" },
 ])
+
+const isEnabled = ref(true)
 </script>
