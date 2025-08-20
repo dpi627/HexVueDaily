@@ -1270,3 +1270,56 @@ defineProps(['innerData']); //camelCase
 ```
 
 ---
+
+
+# Day 14
+
+https://hackmd.io/wIkIQO0GRjqxoO34lvdcsg
+
+## Emits
+
+- 對比 `props`，`emits` 是由子元件向外傳遞資訊
+- 透過定義事件的方式綁定，下面是一個購物車例子
+	- 子元件定義 `emit` `add-to-cart` 與方法 `addToCart`，再透過 `click` 事件去處發
+	- 父元件定義方法 `handleAddToCart`，並於綁定子元件 `<Card />` 方法 `add-to-cart`
+
+```html
+<!-- 子元件(購物車) -->
+<script setup>
+import { defineEmits } from 'vue'; // 可省略但建議寫
+
+// define emit event
+const emit = defineEmits(['add-to-cart']);
+
+const addToCart = (title) => {
+  emit('add-to-cart', title)
+}
+</script>
+
+<template>
+<a @click.prevent="addToCart(title)" href="#">加入購物車</a>
+</template>
+```
+
+```html
+<!-- 父元件 -->
+<script setup>
+import Card from './Card.vue';
+
+const handleAddToCart = (fruitTitle) => {
+  alert(`您已將 ${fruitTitle} 加入購物車`);
+}
+</script>
+
+<template>
+	<Card @add-to-cart="handleAddToCart" />
+</template>
+```
+
+- 同樣要注意命名規則，JavaScript 用 camelCase 而 HTML 屬性則為 kebab-case
+
+> [!note] 
+> `kabab` 是烤肉串的意思，字串之間用 `-` 串聯，看起來就像烤肉串
+
+---
+
