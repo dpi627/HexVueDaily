@@ -1323,3 +1323,75 @@ const handleAddToCart = (fruitTitle) => {
 
 ---
 
+# Day 15
+
+https://hackmd.io/IzZ00F_kRLS_1F7LQ-uptQ
+
+## toast
+
+- Bootstrap 5 元件，通常用於顯示通知
+
+```html
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1050">
+	<div v-if="state.message" 
+	class="toast show align-items-center text-white bg-success border-0">
+		<div class="d-flex">
+			<div class="toast-body">{{ state.message }}</div>
+			<button type="button" 
+			class="btn-close btn-close-white me-2 m-auto" 
+			@click="state.message = ''">
+			</button>
+		</div>
+	</div>
+</div>
+```
+```js
+import { reactive, ref } from 'vue'
+
+const state = reactive({
+  message: ''
+})
+
+const fruitData = ref([
+  // json array
+])
+
+const addToCart = (name) => {
+  state.message = `${name}`
+  
+  setTimeout(() => {
+    state.message = ''
+  }, 3000)
+}
+```
+
+- 設定為 `state.message` 有資料才顯示，並於透過 `setTimeout` 於三秒後移除
+
+## reactive vs ref
+
+- reactive 僅可用於陣列或物件，存取不需要 `.value`
+
+```js
+const state = reactive({
+  message: '',
+  count: 0
+})
+
+state.message = 'Hello'
+state.count++
+```
+
+```js
+const message = ref('')
+const count = ref(0)
+const data = ref({ name: 'John' })
+
+message.value = 'Hello'
+count.value++
+data.value.name = 'Jane'
+
+// 在模板中不需要 .value
+// <div>{{ message }}</div>
+```
+
+---
