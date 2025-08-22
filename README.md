@@ -1395,3 +1395,91 @@ data.value.name = 'Jane'
 ```
 
 ---
+
+# Day 16
+
+https://hackmd.io/CV305t9FSragDT7f0PWH8g
+
+## provide & inject
+
+- 外層元件定義要提供 `provide` 的變數或方法 (設定 key = 名稱)
+- 內層元件定義要注入 `inject` 的變數或方法 (使用 key 取出)
+
+```html
+<!-- 父元件 -->
+<template>
+  <input type="text" v-model="msg"></input>
+  <!-- 子元件 -->
+  <Child16 />
+</template>
+
+<script setup>
+import { ref, provide } from 'vue'
+import Child16 from './components/Child16.vue';
+
+const msg = ref('')
+const resetTextbox = () => { 
+  msg.value = ''
+}
+
+// 定義要提供(provide)的變數或方法，設定名稱作為 key
+provide('msg', msg)
+provide('clearMsg', resetTextbox)
+</script>
+```
+
+```html
+<!-- 子元件 -->
+<template>
+  <div v-if="injectMsg" class="alert alert-success">
+    {{ injectMsg }}
+		<button type="button" @click="injectMethod">Clear</button>
+  </div>
+</template>
+
+<script setup>
+import { inject } from 'vue';
+
+// 宣告注入的變數或方法，使用 key 取出 (並給定預設值避免異常)
+const injectMsg = inject('msg', '')
+const injectMethod = inject('resetMsg', () => { })
+```
+
+## Symbol
+
+- Symbol 是 ES6 引入的一種資料類型
+- 每個 Symbol 都是唯一的，即使描述相同也不會相等
+
+```js
+const sym1 = Symbol('description')
+const sym2 = Symbol('description')
+console.log(sym1 === sym2) // false
+```
+
+- 可用於避免 provide 與 inject 定義 key 的時候衝突
+
+```js
+// store/keys.js
+export const StoreKey = Symbol('store')
+
+// main.js
+import { createApp } from 'vue'
+import { StoreKey } from './store/keys'
+import store from './store'
+
+const app = createApp(App)
+app.provide(StoreKey, store)
+
+// 任何子组件中
+import { inject } from 'vue'
+import { StoreKey } from '@/store/keys'
+
+export default {
+  setup() {
+    const store = inject(StoreKey)
+    return { store }
+  }
+}
+```
+
+---
