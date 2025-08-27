@@ -1698,3 +1698,207 @@ const signIn = async () => {
 ```
 
 ---
+
+# Day 19 新增資料
+
+https://hackmd.io/naxt5IlOTqynthM9Ee5QkQ
+
+- 需要 JWT 驗證的 API 必須帶入 token
+
+```js
+const url = "example/api";
+
+axios.post(url, data, {
+    headers: {
+      Authorization: token.value,
+    },
+  })
+  .then(response => {
+    console.log('成功:', response.data);
+  })
+  .catch(error => {
+    console.error('失敗:', error);
+  });
+```
+
+```js
+// 示意範例
+const res = async () => {
+  await axios.post(`endpoint`, { data }, { config })
+    .then(res => { res.data })
+    .catch(error => { error.response.data })
+};
+```
+
+## 顯示訊息的範本
+
+```html
+<template v-if="messageSignIn">
+	<p :class="{ 'mt-2': true, 'text-danger': isErrorSignIn, 'text-success': !isErrorSignIn }"> {{ messageSignIn }}
+	</p>
+</template>
+```
+
+### 傳遞參數
+
+```js
+axios.get(url[, config])
+axios.post(url[, data[, config]])
+```
+
+- 這個順序是固定的
+- GET 請求通常不需要傳送 body 資料，而 POST 請求需要傳送資料到伺服器
+
+### config 常用參數
+
+```js
+{
+  headers: {},           // 請求標頭
+  timeout: 5000,         // 超時時間（毫秒）
+  baseURL: 'https://api.example.com',  // 基礎 URL
+  params: {},            // URL 參數（用於 GET）
+  data: {},              // 請求體資料（用於 POST/PUT）
+  responseType: 'json',  // 響應資料格式
+  withCredentials: true, // 跨域請求是否帶 cookies
+  validateStatus: function (status) {
+    return status >= 200 && status < 300;
+  },
+  maxRedirects: 5,       // 最大重定向次數
+  proxy: {},             // 代理設定
+  auth: {                // HTTP 基本認證
+    username: 'user',
+    password: 'pass'
+  }
+}
+```
+
+### header 參數
+
+```js
+headers: {
+  'Authorization': 'Bearer token...',
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+  'User-Agent': 'MyApp/1.0',
+  'X-Requested-With': 'XMLHttpRequest',
+  'Cache-Control': 'no-cache',
+  'Accept-Language': 'zh-TW,zh;q=0.9',
+  'X-API-Key': 'your-api-key',
+  'X-CSRF-Token': 'csrf-token'
+}
+```
+
+### 驗證類型
+
+- 應該加上前綴，如果伺服器比較嚴謹可能會檢查
+
+```js
+await axios.get(`${api}/todos`, {
+	headers: {
+		Authorization: `Bearer ${token.value}`,  // 應該加上 Bearer 前綴
+	},
+})
+```
+
+- 其他驗證方式，例如 API Key、基本驗證與其他
+
+```js
+headers: {
+  'X-API-Key': 'your-api-key',
+  // 或
+  'Authorization': 'ApiKey your-api-key'
+}
+
+// 基本驗證
+// 方式一：直接在 headers
+headers: {
+  'Authorization': 'Basic ' + btoa('username:password')
+}
+
+// 方式二：使用 axios 的 auth 選項
+auth: {
+  username: 'user',
+  password: 'password'
+}
+
+// Cookie
+{
+  withCredentials: true,  // 自動帶上 cookies
+  headers: {
+    'X-CSRF-Token': 'csrf-token'  // 防 CSRF 攻擊
+  }
+}
+```
+
+### 驗證格式
+
+HTTP Authorization Header 的標準格式
+
+```js
+Authorization: <type> <credentials>
+```
+
+**Bearer** 是一種認證類型（Authentication Scheme），告訴伺服器這是什麼類型的 token：
+
+- `Bearer token123` - 表示這是 Bearer token（通常是 JWT）
+- `Basic dXNlcjpwYXNz` - 表示這是 Basic 認證
+- `ApiKey abc123` - 表示這是 API Key
+
+### 如果不加 Bearer 會怎樣？
+
+1. **可能會被伺服器拒絕** - 很多伺服器會檢查格式
+2. **不符合 RFC 7617 標準** - HTTP 認證標準
+3. **混淆認證類型** - 伺服器不知道如何處理
+
+不過，有些 API 可能設計得比較寬鬆，直接接受 token 也能正常運作。但建議還是遵循標準。
+
+### header 引號
+
+```js
+// 方式一：加引號（推薦）
+headers: {
+  'Authorization': 'Bearer token123',
+  'Content-Type': 'application/json'
+}
+
+// 方式二：不加引號（也可以）
+headers: {
+  Authorization: 'Bearer token123',
+  ContentType: 'application/json'  // 注意：這種情況不能用 - 符號
+}
+```
+
+**建議加引號的原因：**
+
+- 可以使用 `-` 符號（如 `Content-Type`）
+- 避免 JavaScript 關鍵字衝突
+- 更明確表示這是字串屬性
+
+### Custom Headers `X-`
+
+```js
+// 標準(無前綴)
+headers: {
+  'Authorization': 'Bearer token',
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+  'User-Agent': 'MyApp/1.0',
+  'Cache-Control': 'no-cache'
+}
+
+// 自定義
+headers: {
+  'X-API-Key': 'your-api-key',        // API 金鑰
+  'X-Requested-With': 'XMLHttpRequest', // AJAX 請求標識
+  'X-CSRF-Token': 'csrf-token',       // CSRF 防護
+  'X-User-ID': '12345',               // 用戶 ID
+  'X-Client-Version': '1.2.3',       // 客戶端版本
+  'X-Custom-Header': 'custom-value'   // 自定義資料
+}
+```
+
+- **避免與標準 HTTP Headers 衝突**
+- **表示這是應用程式特定的標頭**
+- **方便識別自定義功能**
+
+---
