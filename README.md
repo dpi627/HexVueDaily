@@ -1483,3 +1483,218 @@ export default {
 ```
 
 ---
+
+# Day 17 
+
+https://hackmd.io/2ONHhWGJQNGjU2ixi6i4Ag
+
+## Axios
+
+https://axios-http.com/docs/intro
+
+- 基於 `Promise`，可以輕鬆地與後端 `API` 進行串接
+- 比起 `AJAX` 更輕量化，寫起來更加的直接、閱讀性更好
+- 提供了簡單的 `API` 執行 `GET`、`POST`、`PUT`、`DELETE` 等 `HTTP` 請求
+- 使用 `Promise`，所以可以使用 `.then`、`.catch` 等非同步操作語法
+- 可以在發送 `request` 前或取得 `response` 後，進行轉換資料操作
+
+```sh
+npm i axios
+```
+
+```js
+import axios from 'axios'
+
+const api = 'https://jsonplaceholder.typicode.com/posts';
+
+axios.get(api)
+  .then((res) => {
+    console.log(res);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+```
+
+- 常見的使用方式
+
+```js
+axios.get(url, config);
+axios.post(url, data, config);
+axios.put(url, data, config);
+axios.delete(url, config);
+axios.patch(url, data, config);
+```
+
+- Axios 的 `response` 是一個結構物件，常用屬性如下
+
+```js
+axios.get(api).then((res) => {
+    console.log(res.data)       // 回應的內容，會自動轉 json
+    console.log(res.config)     // 設定的請求配置
+    console.log(res.status)     // 回應的狀態碼
+    console.log(res.statusText) // 回應的狀態訊息 (不一定有)
+    // response headers，例如可訪問 response.headers['content-type']
+    console.log(res.headers)
+    // 指生成此回應的原生請求，在瀏覽器上就會是 XMLHttpRequest 實例
+    console.log(res.request)
+  })
+```
+
+### config
+
+```js
+axios.defaults.baseURL = 'https://your-base-url';
+axios.defaults.headers.common['Authorization'] = 'Bearer token';
+axios.defaults.headers.post['Content-Type'] = 'application/json';
+axios.defaults.timeout = 10000;
+
+axios.get('/')
+  .then(res => {
+    console.log(res.data);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+```
+
+### onMounted
+
+- **確保 DOM 已準備好**：雖然資料請求不需要 DOM，但這是最佳實踐
+- **生命週期清晰**：明確表示這是在元件掛載後執行的邏輯
+- **避免潛在問題**：如果元件在請求完成前被銷毀，可能會有記憶體洩漏
+
+```js
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+
+const posts = ref([])
+const loading = ref(true)
+const api = 'https://jsonplaceholder.typicode.com/posts';
+
+onMounted(async () => {
+  try {
+    const res = await axios.get(api)
+    
+    posts.value = res.data
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    loading.value = false
+  }
+})
+```
+
+---
+
+# Day 18
+
+https://hackmd.io/6BZWDKikQneK36hD1wBkxg
+
+## 登入驗證實作
+
+- 實作呼叫登入 API 並取得結果
+
+<details>
+<summary>官方範例(註冊)</summary>
+
+```html
+<template>
+  <div id="app">
+    <div class="container mt-2">
+      <h2>註冊</h2>
+      <form>
+        <div class="form-group">
+          <label for="exampleInputEmail1">Email</label>
+          <input v-model="emailSignUp" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="請輸入信箱">
+        </div>
+        <div class="form-group my-3">
+          <label for="exampleInputPassword1">Password</label>
+          <input v-model="passwordSignUp" type="password" class="form-control" id="exampleInputPassword1" placeholder="請輸入密碼">
+        </div>
+        <div class="form-group my-3">
+          <label for="exampleInputNickName">Nick Name</label>
+          <input v-model="nickname" type="text" class="form-control" id="exampleInputNickName" placeholder="請輸入暱稱">
+        </div>
+        <button @click="signUp" type="button" class="btn btn-primary">註冊</button>
+      </form>
+      <template v-if="messageSignUp">
+        <p :class="{'mt-2': true, 'text-danger': isErrorSignUp, 'text-success': !isErrorSignUp}"> {{ messageSignUp }}</p>       
+      </template>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+import axios from 'axios'
+
+
+const api = 'https://todolist-api.hexschool.io';
+
+const emailSignUp = ref('');
+const passwordSignUp = ref('');
+const nickname = ref('');
+const messageSignUp = ref('');
+const isErrorSignUp = ref(false);
+
+const signUp = async () => {
+  try {
+    const response = await axios.post(`${api}/users/sign_up`, {
+      email: emailSignUp.value,
+      password: passwordSignUp.value,
+      nickname: nickname.value,
+    });
+    messageSignUp.value = '註冊成功. UID: ' + response.data.uid;
+    isErrorSignUp.value = false;
+  } catch (error) {
+    messageSignUp.value = '註冊失敗: ' + error.response.data.message;
+    isErrorSignUp.value = true;
+  }
+};
+</script>
+```
+
+</details>
+
+- 六角 WebAPI
+
+```
+https://todolist-api.hexschool.io/doc/
+```
+
+- 實作登入，成功時儲存 `token`
+
+```js
+import axios from "axios";
+import { ref } from "vue";
+
+const api = 'https://todolist-api.hexschool.io';
+
+const emailSignIn = ref('');
+const passwordSignIn = ref('');
+
+const responseMessage = ref('');
+const isErrorMessage = ref(false);
+const token = ref('');
+
+const signIn = async () => {
+  try {
+    const res = await axios.post(`${api}/users/sign_in`, {
+      "email": emailSignIn.value,
+      "password": passwordSignIn.value
+    })
+    isErrorMessage.value = false
+    console.log(res)
+    token.value = res.data.token
+    responseMessage.value = `登入成功: ${res.data.nickname} [token: ${token.value}]`
+  }
+  catch (error) {
+    isErrorMessage.value = true
+    console.log(error)
+    responseMessage.value = `登入失敗: ${error.response.data.message}`
+  }
+};
+```
+
+---
