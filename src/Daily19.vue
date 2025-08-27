@@ -73,7 +73,7 @@ const signIn = async () => {
 
 const addTodo = async () => {
   await axios.post(`${api}/todos`, {
-    content: newTodo.value
+    content: newTodo.value + ` #${new Date().getTime()}`
   }, {
     headers: {
       Authorization: token.value,
@@ -92,11 +92,14 @@ const addTodo = async () => {
 };
 
 const getTodos = async () => {
-  // await axios.get(`${api}/todos`, {
-  //   headers: {
-  //     Authorization: token.value,
-  //   },
-  // })
-  // .then(res => { todos.value = res.data })
+  await axios.get(`${api}/todos`, {
+    headers: {
+      Authorization: token.value,
+    },
+  })
+    .then(res => {
+      // console.log(res.data)
+      todos.value = res.data.data
+    })
 };
 </script>
