@@ -1902,3 +1902,56 @@ headers: {
 - **方便識別自定義功能**
 
 ---
+
+# Day 20
+
+https://hackmd.io/xu7R7CD4RXyCBBA8TkElwg
+
+## 刪除資料
+
+```js
+const url = "example/api"
+
+axios.delete(`${url}/${ 要刪除產品的id }`, {
+    headers: {
+      Authorization: token.value,
+    },
+  })
+  .then(response => {
+    console.log('資料刪除成功:', response.data);
+  })
+  .catch(error => {
+    console.error('刪除資料時發生錯誤:', error);
+  });
+```
+
+## 移除陣列元素
+
+- 常用 filter
+
+```js
+todos.value = todos.value.filter(todo => todo.id !== id)
+```
+
+- 或 findIndex 後 splice
+
+```js
+const index = todos.value.findIndex(todo => todo.id === id);
+if (index !== -1) {
+	todos.value.splice(index, 1);
+}
+```
+
+| 比較項目          | `filter`   | `findIndex` + `splice` |
+| ------------- | ---------- | ---------------------- |
+| **可讀性**       | ⭐⭐⭐⭐⭐      | ⭐⭐⭐                    |
+| **記憶體使用**     | 較高 - 創建新陣列 | 較低 - 修改原陣列             |
+| **時間複雜度**     | 遍歷整個陣列     | 找到後立即停止                |
+| **小陣列效能**     | 優秀         | 優秀                     |
+| **大陣列效能**     | 普通         | 較好                     |
+| **副作用風險**     | 無          | 有 (修改原陣列)              |
+| **Vue 3 響應式** | ✅          | ✅                      |
+| **錯誤處理**      | 找不到元素不會出錯  | 需要手動檢查 index !== -1    |
+| **現代開發風格**    | ⭐⭐⭐⭐⭐      | ⭐⭐⭐                    |
+
+---
